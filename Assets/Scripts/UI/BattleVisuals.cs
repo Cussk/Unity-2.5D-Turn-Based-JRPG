@@ -21,8 +21,6 @@ namespace UI
         void Start()
         {
             _animator = gameObject.GetComponent<Animator>();
-            SetStartingValues(10, 10, 5);
-            PlayAttackAnimation();
         }
 
         void SetStartingValues(int currentHealth, int maxHealth, int level)

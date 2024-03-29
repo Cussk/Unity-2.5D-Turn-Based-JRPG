@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Interfaces;
 using UnityEngine;
 
 namespace Enemies
@@ -24,10 +25,15 @@ namespace Enemies
                 currentEnemies.Add(newEnemy);
             }
         }
+
+        public List<Enemy> GetEnemies()
+        {
+            return currentEnemies;
+        }
     }
 
     [System.Serializable]
-    public class Enemy
+    public class Enemy : IEntity
     {
         const float LEVEL_MODIFIER = 0.5f;
         
@@ -55,5 +61,37 @@ namespace Enemies
             var statModifier = Mathf.RoundToInt(level * LEVEL_MODIFIER);
             return statModifier;
         }
+        
+        #region EntityInterface
+        public string GetMemberName()
+        {
+            return enemyName;
+        }
+
+        public int GetLevel()
+        {
+            return level;
+        }
+
+        public int GetCurrentHealth()
+        {
+            return currentHealth;
+        }
+
+        public int GetMaxHealth()
+        {
+            return maxHealth;
+        }
+
+        public int GetStrength()
+        {
+            return strength;
+        }
+
+        public int GetInitiative()
+        {
+            return initiative;
+        }
+        #endregion
     }
 }

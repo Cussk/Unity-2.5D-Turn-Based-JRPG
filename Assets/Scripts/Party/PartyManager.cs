@@ -1,4 +1,6 @@
+using System.Collections;
 using System.Collections.Generic;
+using Interfaces;
 using UnityEngine;
 
 namespace Party
@@ -24,10 +26,15 @@ namespace Party
                 currentPartyMembers.Add(newPartyMember);
             }
         }
+
+        public List<PartyMember> GetPartyMembers()
+        {
+            return currentPartyMembers;
+        }
     }
 
     [System.Serializable]
-    public class PartyMember
+    public class PartyMember : IEntity
     {
         public GameObject memberBattleVisualPrefab;
         public GameObject memberOverworldVisualPrefab;
@@ -51,5 +58,37 @@ namespace Party
             strength = partyMemberInfo.baseStr;
             initiative = partyMemberInfo.baseInitiative;
         }
+
+        #region EntityInterface
+        public string GetMemberName()
+        {
+            return memberName;
+        }
+
+        public int GetLevel()
+        {
+            return level;
+        }
+
+        public int GetCurrentHealth()
+        {
+            return currentHealth;
+        }
+
+        public int GetMaxHealth()
+        {
+            return maxHealth;
+        }
+
+        public int GetStrength()
+        {
+            return strength;
+        }
+
+        public int GetInitiative()
+        {
+            return initiative;
+        }
+        #endregion
     }
 }

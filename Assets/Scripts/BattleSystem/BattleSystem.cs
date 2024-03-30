@@ -1,21 +1,18 @@
 using System.Collections.Generic;
-using System.Linq;
 using Enemies;
 using Interfaces;
 using Party;
-using TMPro;
 using UI;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace BattleSystem
 {
     public class BattleSystem : MonoBehaviour
     {
-        const string ACTION_MSG = "'s Action:";
-        
+        [Header("Dependency Injections")]
         [SerializeField] PartyManager partyManager;
         [SerializeField] EnemyManager enemyManager;
+        [SerializeField] GameObject battleUICanvas;
         
         [Header("Spawn Points")]
         [SerializeField] Transform[] partySpawnPoints;
@@ -26,19 +23,15 @@ namespace BattleSystem
         [SerializeField] List<BattleEntity> enemyBattlers = new();
         [SerializeField] List<BattleEntity> playerBattlers = new();
 
-        [SerializeField] GameObject[] enemySelectionButtons;
-        [SerializeField] GameObject battleMenu;
-        [SerializeField] GameObject enemySelectionMenu;
-        [SerializeField] TextMeshProUGUI actionTitleText;
-
-        int currentPlayer;
+        BattleUI _battleUI;
+        int _currentPlayer;
     
         void Start()
         {
             AddPartyMembers();
             AddEnemies();
-            //ShowBattleMenu();
-            ShowEnemySelectionMenu();
+            _battleUI = new BattleUI(enemyBattlers, SelectEnemy, battleUICanvas);
+            _battleUI.ShowBattleMenu(playerBattlers, _currentPlayer);
         }
 
         void AddPartyMembers()
@@ -79,31 +72,31 @@ namespace BattleSystem
             entityBattleVisuals.SetStartingValues(entity.GetCurrentHealth(), entity.GetMaxHealth(), entity.GetLevel());
             battleEntity.battleVisuals = entityBattleVisuals;
         }
-
-        void ShowBattleMenu()
+        
+        void SelectEnemy(int currentEnemy)
         {
-            actionTitleText.text = playerBattlers[currentPlayer].name + ACTION_MSG;
-            battleMenu.SetActive(true);
+            var currentPlayerEntity = playerBattlers[_currentPlayer];
+            currentPlayerEntity.SetTarget(allBattlers.IndexOf(enemyBattlers[currentEnemy]));
+
+            currentPlayerEntity.battleAction = BattleEntity.Action.Attack;
+            _currentPlayer++;
+
+            HaveAllPlayersSelected(currentPlayerEntity);
         }
 
-        void ShowEnemySelectionMenu()
+        void HaveAllPlayersSelected(BattleEntity currentPlayerEntity)
         {
-            battleMenu.SetActive(false);
-            SetEnemySelectionButtons();
-            enemySelectionMenu.SetActive(true);
-        }
-
-        void SetEnemySelectionButtons()
-        {
-            foreach (var button in enemySelectionButtons)
+            if (_currentPlayer >= playerBattlers.Count)
             {
-                button.SetActive(false);
+                //start turn
+                Debug.Log("Start Battle");
+                Debug.Log("We are attacking: " + allBattlers[currentPlayerEntity.actionTarget].name);
+                _currentPlayer = 0;
             }
-
-            for (var i = 0; i < enemyBattlers.Count(); i++)
+            else
             {
-                enemySelectionButtons[i].SetActive(true);
-                enemySelectionButtons[i].GetComponentInChildren<TextMeshProUGUI>().text = enemyBattlers[i].name;
+                _battleUI.ToggleEnemySelectionMenu();
+                _battleUI.ShowBattleMenu(playerBattlers, _currentPlayer);
             }
         }
     }
@@ -111,13 +104,21 @@ namespace BattleSystem
     [System.Serializable]
     public class BattleEntity
     {
+        public enum Action
+        {
+            Attack,
+            Run
+        }
+        
         public BattleVisuals battleVisuals;
+        public Action battleAction;
         public string name;
         public int level;
         public int currentHealth;
         public int maxHealth;
         public int strength;
         public int initiative;
+        public int actionTarget;
         public bool isPlayer;
 
         public BattleEntity(IEntity entity) 
@@ -136,6 +137,11 @@ namespace BattleSystem
             strength = entity.GetStrength();
             initiative = entity.GetInitiative();
             isPlayer = entity is PartyMember;;
+        }
+
+        public void SetTarget(int target)
+        {
+            actionTarget = target;
         }
     }
 }

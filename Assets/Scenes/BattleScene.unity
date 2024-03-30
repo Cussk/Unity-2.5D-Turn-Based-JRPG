@@ -617,7 +617,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 250}
+  m_AnchoredPosition: {x: 100, y: -35}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &577820942
@@ -2384,6 +2384,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   partyManager: {fileID: 1957864501}
   enemyManager: {fileID: 2141385037}
+  battleUICanvas: {fileID: 1259353938}
   partySpawnPoints:
   - {fileID: 1152517252}
   - {fileID: 1776791635}
@@ -2395,13 +2396,6 @@ MonoBehaviour:
   allBattlers: []
   enemyBattlers: []
   playerBattlers: []
-  enemySelectionButtons:
-  - {fileID: 1319626741}
-  - {fileID: 1207574487}
-  - {fileID: 748698007}
-  battleMenu: {fileID: 1625821801}
-  enemySelectionMenu: {fileID: 481344130}
-  actionTitleText: {fileID: 1704620901}
 --- !u!4 &1594220979
 Transform:
   m_ObjectHideFlags: 0
@@ -2452,7 +2446,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -60, y: 250}
+  m_AnchoredPosition: {x: -110, y: -35}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1649984665

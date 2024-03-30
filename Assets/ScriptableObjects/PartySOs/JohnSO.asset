@@ -12,7 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aa3614b6a521f024da39df7d721bb9d9, type: 3}
   m_Name: JohnSO
   m_EditorClassIdentifier: 
-  memberBattleVisualPrefab: {fileID: 0}
+  memberBattleVisualPrefab: {fileID: 6301666088670898318, guid: 16317f420906f0c4c96bfbf2df884564,
+    type: 3}
   memberOverworldVisualPrefab: {fileID: 0}
   memberName: John
   startingLevel: 1

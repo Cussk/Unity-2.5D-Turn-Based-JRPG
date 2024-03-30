@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using Interfaces;
 using UnityEngine;
@@ -60,6 +59,12 @@ namespace Party
         }
 
         #region EntityInterface
+
+        public GameObject GetBattleVisualsPrefab()
+        {
+            return memberBattleVisualPrefab;
+        }
+
         public string GetMemberName()
         {
             return memberName;

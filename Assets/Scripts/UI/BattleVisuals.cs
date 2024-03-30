@@ -23,7 +23,7 @@ namespace UI
             _animator = gameObject.GetComponent<Animator>();
         }
 
-        void SetStartingValues(int currentHealth, int maxHealth, int level)
+        public void SetStartingValues(int currentHealth, int maxHealth, int level)
         {
             _currentHealth = currentHealth;
             _maxHealth = maxHealth;

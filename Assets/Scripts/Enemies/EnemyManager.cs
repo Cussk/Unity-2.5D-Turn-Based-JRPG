@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using Interfaces;
 using UnityEngine;
@@ -63,6 +62,12 @@ namespace Enemies
         }
         
         #region EntityInterface
+
+        public GameObject GetBattleVisualsPrefab()
+        {
+            return enemyVisualPrefab;
+        }
+
         public string GetMemberName()
         {
             return enemyName;

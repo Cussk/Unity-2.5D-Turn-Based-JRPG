@@ -1,25 +1,28 @@
 using System.Collections.Generic;
+using System.Linq;
 using Enemies;
 using Interfaces;
 using Party;
+using UI;
 using UnityEngine;
 
 namespace BattleSystem
 {
     public class BattleSystem : MonoBehaviour
     {
-        [SerializeField] PartyManager _partyManager;
-        [SerializeField] EnemyManager _enemyManager;
-        [SerializeField] List<BattleEntities> allBattlers = new List<BattleEntities>();
-        [SerializeField] List<BattleEntities> enemyBattlers = new List<BattleEntities>();
-        [SerializeField] List<BattleEntities> playerBattlers = new List<BattleEntities>();
+        [SerializeField] PartyManager partyManager;
+        [SerializeField] EnemyManager enemyManager;
+        
+        [Header("Spawn Points")]
+        [SerializeField] Transform[] partySpawnPoints;
+        [SerializeField] Transform[] enemySpawnPoints;
+        
+        [Header("Battlers Lists")]
+        [SerializeField] List<BattleEntity> allBattlers = new();
+        [SerializeField] List<BattleEntity> enemyBattlers = new();
+        [SerializeField] List<BattleEntity> playerBattlers = new();
     
         void Start()
-        {
-            AddEntitiesToBattle();
-        }
-
-        void AddEntitiesToBattle()
         {
             AddPartyMembers();
             AddEnemies();
@@ -27,30 +30,48 @@ namespace BattleSystem
 
         void AddPartyMembers()
         {
-            var currentParty = _partyManager.GetPartyMembers();
-            foreach (var member in currentParty)
-            {
-                var battleEntity = new BattleEntities(true, member);
-                playerBattlers.Add(battleEntity);
-                allBattlers.Add(battleEntity);
-            }
+            var currentParty = partyManager.GetPartyMembers();
+            AddEntities(true, currentParty);
         }
         
         void AddEnemies()
         {
-            var currentEnemies = _enemyManager.GetEnemies();
-            foreach (var enemy in currentEnemies)
+            var currentEnemies = enemyManager.GetEnemies();
+            AddEntities(false, currentEnemies);
+        }
+        
+        void AddEntities(bool isPlayer, IEnumerable<IEntity> entities)
+        {
+            foreach (var entity in entities)
             {
-                var battleEntity = new BattleEntities(false, null, enemy);
-                enemyBattlers.Add(battleEntity);
+                var battleEntity = new BattleEntity(entity);
+                var spawnPoint = isPlayer ? partySpawnPoints[playerBattlers.Count] : enemySpawnPoints[enemyBattlers.Count];
+                InitializeBattleEntityVisuals(entity, spawnPoint, battleEntity);
+
+                if (isPlayer)
+                    playerBattlers.Add(battleEntity);
+                else
+                    enemyBattlers.Add(battleEntity);
+        
                 allBattlers.Add(battleEntity);
             }
+        }
+
+        static void InitializeBattleEntityVisuals(IEntity entity, Transform spawnPoint, BattleEntity battleEntity)
+        {
+            var entityBattleVisuals =
+                Instantiate(entity.GetBattleVisualsPrefab(), spawnPoint.position, Quaternion.identity)
+                    .GetComponent<BattleVisuals>();
+
+            entityBattleVisuals.SetStartingValues(entity.GetCurrentHealth(), entity.GetMaxHealth(), entity.GetLevel());
+            battleEntity.battleVisuals = entityBattleVisuals;
         }
     }
 
     [System.Serializable]
-    public class BattleEntities
+    public class BattleEntity
     {
+        public BattleVisuals battleVisuals;
         public string memberName;
         public int level;
         public int currentHealth;
@@ -59,13 +80,12 @@ namespace BattleSystem
         public int initiative;
         public bool isPlayer;
 
-        public BattleEntities(bool isPlayer, PartyMember partyMember = null, Enemy enemy = null) 
+        public BattleEntity(IEntity entity) 
         {
-            SetEntityValues(partyMember, isPlayer);
-            SetEntityValues(enemy, isPlayer);
+            SetEntityValues(entity);
         }
 
-        void SetEntityValues<T>(T entity, bool isEntityPlayer) where T : IEntity
+        void SetEntityValues<T>(T entity) where T : IEntity
         {
             if (entity == null) return;
 
@@ -75,7 +95,7 @@ namespace BattleSystem
             maxHealth = entity.GetMaxHealth();
             strength = entity.GetStrength();
             initiative = entity.GetInitiative();
-            isPlayer = isEntityPlayer;
+            isPlayer = entity is PartyMember;;
         }
     }
 }

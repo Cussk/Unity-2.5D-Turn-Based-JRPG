@@ -3,13 +3,17 @@ using System.Linq;
 using Enemies;
 using Interfaces;
 using Party;
+using TMPro;
 using UI;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace BattleSystem
 {
     public class BattleSystem : MonoBehaviour
     {
+        const string ACTION_MSG = "'s Action:";
+        
         [SerializeField] PartyManager partyManager;
         [SerializeField] EnemyManager enemyManager;
         
@@ -21,11 +25,20 @@ namespace BattleSystem
         [SerializeField] List<BattleEntity> allBattlers = new();
         [SerializeField] List<BattleEntity> enemyBattlers = new();
         [SerializeField] List<BattleEntity> playerBattlers = new();
+
+        [SerializeField] GameObject[] enemySelectionButtons;
+        [SerializeField] GameObject battleMenu;
+        [SerializeField] GameObject enemySelectionMenu;
+        [SerializeField] TextMeshProUGUI actionTitleText;
+
+        int currentPlayer;
     
         void Start()
         {
             AddPartyMembers();
             AddEnemies();
+            //ShowBattleMenu();
+            ShowEnemySelectionMenu();
         }
 
         void AddPartyMembers()
@@ -66,13 +79,40 @@ namespace BattleSystem
             entityBattleVisuals.SetStartingValues(entity.GetCurrentHealth(), entity.GetMaxHealth(), entity.GetLevel());
             battleEntity.battleVisuals = entityBattleVisuals;
         }
+
+        void ShowBattleMenu()
+        {
+            actionTitleText.text = playerBattlers[currentPlayer].name + ACTION_MSG;
+            battleMenu.SetActive(true);
+        }
+
+        void ShowEnemySelectionMenu()
+        {
+            battleMenu.SetActive(false);
+            SetEnemySelectionButtons();
+            enemySelectionMenu.SetActive(true);
+        }
+
+        void SetEnemySelectionButtons()
+        {
+            foreach (var button in enemySelectionButtons)
+            {
+                button.SetActive(false);
+            }
+
+            for (var i = 0; i < enemyBattlers.Count(); i++)
+            {
+                enemySelectionButtons[i].SetActive(true);
+                enemySelectionButtons[i].GetComponentInChildren<TextMeshProUGUI>().text = enemyBattlers[i].name;
+            }
+        }
     }
 
     [System.Serializable]
     public class BattleEntity
     {
         public BattleVisuals battleVisuals;
-        public string memberName;
+        public string name;
         public int level;
         public int currentHealth;
         public int maxHealth;
@@ -89,7 +129,7 @@ namespace BattleSystem
         {
             if (entity == null) return;
 
-            memberName = entity.GetMemberName();
+            name = entity.GetMemberName();
             level = entity.GetLevel();
             currentHealth = entity.GetCurrentHealth();
             maxHealth = entity.GetMaxHealth();

@@ -2,7 +2,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace UI
+namespace BattleSystem
 {
     public class BattleVisuals : MonoBehaviour
     {

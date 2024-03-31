@@ -1,8 +1,7 @@
 using System.Collections.Generic;
-using Interfaces;
 using UnityEngine;
 
-namespace Enemies
+namespace Characters.Enemies
 {
     public class EnemyManager : MonoBehaviour
     {

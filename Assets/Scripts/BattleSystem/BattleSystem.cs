@@ -1,8 +1,7 @@
 using System.Collections.Generic;
-using Enemies;
-using Interfaces;
-using Party;
-using UI;
+using Characters;
+using Characters.Enemies;
+using Characters.Party;
 using UnityEngine;
 
 namespace BattleSystem

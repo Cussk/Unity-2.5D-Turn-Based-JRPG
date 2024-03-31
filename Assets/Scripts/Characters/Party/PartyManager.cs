@@ -1,8 +1,7 @@
 using System.Collections.Generic;
-using Interfaces;
 using UnityEngine;
 
-namespace Party
+namespace Characters.Party
 {
     public class PartyManager : MonoBehaviour
     {

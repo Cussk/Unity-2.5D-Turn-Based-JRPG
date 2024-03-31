@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Interfaces
+namespace Characters
 {
     public interface IEntity
     {

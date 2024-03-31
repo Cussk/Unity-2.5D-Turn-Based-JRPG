@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Party
+namespace Characters.Party
 {
     [CreateAssetMenu (menuName = "New Party Member")]
     public class PartyMemberInfo : ScriptableObject

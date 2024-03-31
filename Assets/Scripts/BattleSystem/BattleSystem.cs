@@ -1,3 +1,5 @@
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using Characters;
 using Characters.Enemies;
@@ -8,6 +10,20 @@ namespace BattleSystem
 {
     public class BattleSystem : MonoBehaviour
     {
+        const int TURN_DURATION = 1;
+        
+        enum BattleState
+        {
+            Start,
+            Selection,
+            Battle,
+            Won,
+            Lost,
+            Run
+        }
+
+        [SerializeField] BattleState battleState;
+        
         [Header("Dependency Injections")]
         [SerializeField] PartyManager partyManager;
         [SerializeField] EnemyManager enemyManager;
@@ -29,8 +45,70 @@ namespace BattleSystem
         {
             AddPartyMembers();
             AddEnemies();
-            _battleUI = new BattleUI(enemyBattlers, SelectEnemy, battleUICanvas);
-            _battleUI.ShowBattleMenu(playerBattlers, _currentPlayer);
+            _battleUI = new BattleUI(playerBattlers, enemyBattlers, SelectEnemy, battleUICanvas);
+            _battleUI.ShowBattleMenu(_currentPlayer);
+        }
+
+        IEnumerator BattleRoutine()
+        {
+            _battleUI.ToggleEnemySelectionMenu();
+            battleState = BattleState.Battle;
+            _battleUI.ToggleBottomPoPUp();
+
+            for (var i = 0; i < allBattlers.Count; i++)
+            {
+                var battler = allBattlers[i];
+
+                switch (battler.battleAction)
+                {
+                    case BattleEntity.Action.Attack:
+                        yield return StartCoroutine(AttackRoutine(battler, allBattlers[battler.actionTarget]));
+                        break;
+                    case BattleEntity.Action.Run:
+                        break;
+                    default:
+                        Debug.Log("Not a valid Action");
+                        break;
+                }
+            }
+
+            CheckStillBattling();
+
+            yield return null;
+        }
+        
+        
+        void CheckStillBattling()
+        {
+            if (battleState != BattleState.Battle) return;
+            
+            _battleUI.ToggleBottomPoPUp();
+            _currentPlayer = 0;
+            _battleUI.ShowBattleMenu(_currentPlayer);
+        }
+
+        IEnumerator AttackRoutine(BattleEntity currentAttacker, BattleEntity currentTarget)
+        {
+            if (currentAttacker.isPlayer)
+            {
+                AttackAction(currentAttacker, currentTarget);
+                yield return new WaitForSeconds(TURN_DURATION);
+
+                if (currentTarget.currentHealth <= 0)
+                {
+                    _battleUI.ShowDefeatedText(currentAttacker.name, currentTarget.name);
+                    yield return new WaitForSeconds(TURN_DURATION);
+                    enemyBattlers.Remove(currentTarget);
+                    allBattlers.Remove(currentTarget);
+                    
+                    if (enemyBattlers.Count <= 0)
+                    {
+                        battleState = BattleState.Won;
+                        _battleUI.ShowWinText();
+                    }
+                }
+            }
+            yield return null;
         }
 
         void AddPartyMembers()
@@ -80,23 +158,30 @@ namespace BattleSystem
             currentPlayerEntity.battleAction = BattleEntity.Action.Attack;
             _currentPlayer++;
 
-            HaveAllPlayersSelected(currentPlayerEntity);
+            HaveAllPlayersSelected();
         }
 
-        void HaveAllPlayersSelected(BattleEntity currentPlayerEntity)
+        void HaveAllPlayersSelected()
         {
             if (_currentPlayer >= playerBattlers.Count)
             {
-                //start turn
-                Debug.Log("Start Battle");
-                Debug.Log("We are attacking: " + allBattlers[currentPlayerEntity.actionTarget].name);
-                _currentPlayer = 0;
+                StartCoroutine(BattleRoutine());
             }
             else
             {
                 _battleUI.ToggleEnemySelectionMenu();
-                _battleUI.ShowBattleMenu(playerBattlers, _currentPlayer);
+                _battleUI.ShowBattleMenu(_currentPlayer);
             }
+        }
+
+        void AttackAction(BattleEntity currentAttacker, BattleEntity currentTarget)
+        {
+            var damage = currentAttacker.strength;
+            currentAttacker.battleVisuals.PlayAttackAnimation();
+            currentTarget.currentHealth -= damage;
+            currentTarget.battleVisuals.PlayHitAnimation();
+            currentTarget.UpdateHealthBar();
+            _battleUI.ShowDamageText(currentAttacker.name, currentTarget.name, damage);
         }
     }
 
@@ -124,6 +209,16 @@ namespace BattleSystem
         {
             SetEntityValues(entity);
         }
+        
+        public void SetTarget(int target)
+        {
+            actionTarget = target;
+        }
+
+        public void UpdateHealthBar()
+        {
+            battleVisuals.ChangeHealth(currentHealth);
+        }
 
         void SetEntityValues<T>(T entity) where T : IEntity
         {
@@ -136,11 +231,6 @@ namespace BattleSystem
             strength = entity.GetStrength();
             initiative = entity.GetInitiative();
             isPlayer = entity is PartyMember;;
-        }
-
-        public void SetTarget(int target)
-        {
-            actionTarget = target;
         }
     }
 }

@@ -18,7 +18,7 @@ namespace BattleSystem
         int _maxHealth;
         int _level;
 
-        void Start()
+        void Awake()
         {
             _animator = gameObject.GetComponent<Animator>();
         }
@@ -39,24 +39,18 @@ namespace BattleSystem
             if (_currentHealth <= 0)
             {
                 PlayDeathAnimation();
-                Destroy(gameObject);
+                Destroy(gameObject, 1f);
             }
             
             UpdateHealthBar();
         }
 
-        void UpdateHealthBar()
-        {
-            healthBar.maxValue = _maxHealth;
-            healthBar.value = _currentHealth;
-        }
-
-        void PlayAttackAnimation()
+        public void PlayAttackAnimation()
         {
             _animator.SetTrigger(IS_ATTACK_PARAM);
         }
 
-        void PlayHitAnimation()
+        public void PlayHitAnimation()
         {
             _animator.SetTrigger(IS_HIT_PARAM);
         }
@@ -64,6 +58,12 @@ namespace BattleSystem
         void PlayDeathAnimation()
         {
             _animator.SetTrigger(IS_DEAD_PARAM);
+        }
+        
+        void UpdateHealthBar()
+        {
+            healthBar.maxValue = _maxHealth;
+            healthBar.value = _currentHealth;
         }
     }
 }

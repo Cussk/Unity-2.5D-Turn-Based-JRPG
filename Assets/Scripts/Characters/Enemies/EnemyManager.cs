@@ -11,7 +11,6 @@ namespace Characters.Enemies
         void Awake()
         {
             GenerateEnemyByName("Slime", 1);
-            GenerateEnemyByName("Slime", 1);
         }
 
         void GenerateEnemyByName(string enemyName, int level)

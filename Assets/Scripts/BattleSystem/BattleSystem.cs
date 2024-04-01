@@ -1,6 +1,6 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Characters;
 using Characters.Enemies;
 using Characters.Party;
@@ -57,12 +57,13 @@ namespace BattleSystem
 
             for (var i = 0; i < allBattlers.Count; i++)
             {
+                if (battleState != BattleState.Battle) continue;
+                
                 var battler = allBattlers[i];
-
                 switch (battler.battleAction)
                 {
                     case BattleEntity.Action.Attack:
-                        yield return StartCoroutine(AttackRoutine(battler, allBattlers[battler.actionTarget]));
+                        yield return StartCoroutine(AttackRoutine(battler));
                         break;
                     case BattleEntity.Action.Run:
                         break;
@@ -87,28 +88,64 @@ namespace BattleSystem
             _battleUI.ShowBattleMenu(_currentPlayer);
         }
 
-        IEnumerator AttackRoutine(BattleEntity currentAttacker, BattleEntity currentTarget)
+        IEnumerator AttackRoutine(BattleEntity currentAttacker)
         {
-            if (currentAttacker.isPlayer)
-            {
-                AttackAction(currentAttacker, currentTarget);
-                yield return new WaitForSeconds(TURN_DURATION);
+            SetRandomTarget(currentAttacker);
 
-                if (currentTarget.currentHealth <= 0)
+            var currentTarget = allBattlers[currentAttacker.actionTarget];
+
+            AttackAction(currentAttacker, currentTarget);
+            yield return new WaitForSeconds(TURN_DURATION);
+
+            if (currentTarget.currentHealth <= 0)
+            {
+                _battleUI.ShowDefeatedText(currentAttacker.name, currentTarget.name);
+                yield return new WaitForSeconds(TURN_DURATION);
+        
+                HandleTargetDefeated(currentTarget);
+            }
+
+            yield return null;
+        }
+
+        void SetRandomTarget(BattleEntity currentAttacker)
+        {
+            var isTargetAnotherPartyMember = allBattlers[currentAttacker.actionTarget].isPlayer;
+            var isTargetAlreadyDefeated = currentAttacker.actionTarget >= allBattlers.Count;
+            
+            switch (currentAttacker.isPlayer)
+            {
+                case true when (isTargetAnotherPartyMember || isTargetAlreadyDefeated):
+                    currentAttacker.SetTarget(GetRandomBattler(false));
+                    break;
+                case false:
+                    currentAttacker.SetTarget(GetRandomBattler(true));
+                    break;
+            }
+        }
+
+        void HandleTargetDefeated(BattleEntity currentTarget)
+        {
+            if (currentTarget.isPlayer)
+            {
+                playerBattlers.Remove(currentTarget);
+                if (playerBattlers.Count <= 0)
                 {
-                    _battleUI.ShowDefeatedText(currentAttacker.name, currentTarget.name);
-                    yield return new WaitForSeconds(TURN_DURATION);
-                    enemyBattlers.Remove(currentTarget);
-                    allBattlers.Remove(currentTarget);
-                    
-                    if (enemyBattlers.Count <= 0)
-                    {
-                        battleState = BattleState.Won;
-                        _battleUI.ShowWinText();
-                    }
+                    battleState = BattleState.Lost;
+                    _battleUI.ShowLossText();
                 }
             }
-            yield return null;
+            else
+            {
+                enemyBattlers.Remove(currentTarget);
+                if (enemyBattlers.Count <= 0)
+                {
+                    battleState = BattleState.Won;
+                    _battleUI.ShowWinText();
+                }
+            }
+            
+            allBattlers.Remove(currentTarget);
         }
 
         void AddPartyMembers()
@@ -182,6 +219,15 @@ namespace BattleSystem
             currentTarget.battleVisuals.PlayHitAnimation();
             currentTarget.UpdateHealthBar();
             _battleUI.ShowDamageText(currentAttacker.name, currentTarget.name, damage);
+        }
+
+        int GetRandomBattler(bool isPlayer)
+        {
+            var tempBattlerList = Enumerable.Range(0, allBattlers.Count)
+                .Where(index => allBattlers[index].isPlayer == isPlayer)
+                .ToList();
+            
+            return tempBattlerList[Random.Range(0, tempBattlerList.Count)];
         }
     }
 

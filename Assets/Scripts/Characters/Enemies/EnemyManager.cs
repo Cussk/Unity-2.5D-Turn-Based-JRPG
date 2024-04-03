@@ -1,18 +1,46 @@
 using System.Collections.Generic;
+using EncounterSystem;
 using UnityEngine;
 
 namespace Characters.Enemies
 {
     public class EnemyManager : MonoBehaviour
     {
+        static GameObject _instance;
+        
         [SerializeField] EnemyInfo[] allEnemyInfos;
         [SerializeField] List<Enemy> currentEnemies;
 
         void Awake()
         {
-            GenerateEnemyByName("Slime", 1);
-            GenerateEnemyByName("Slime", 1);
-            GenerateEnemyByName("Slime", 1);
+            SetInstance();
+        }
+
+        void SetInstance()
+        {
+            if (_instance != null)
+            {
+                Destroy(gameObject);
+            }
+            else
+            {
+                _instance = gameObject;
+            }
+
+            DontDestroyOnLoad(gameObject);
+        }
+
+        public void GenerateEnemiesByEncounter(Encounter[] encounters, int maxNumberEnemies)
+        {
+            currentEnemies.Clear();
+
+            var numberEnemies = Random.Range(1, maxNumberEnemies + 1);
+            for (var i = 0; i < numberEnemies; i++)
+            {
+                var tempEncounter = encounters[Random.Range(0, encounters.Length)];
+                var randomLevel = Random.Range(tempEncounter.minLevel, tempEncounter.maxLevel + 1);
+                GenerateEnemyByName(tempEncounter.enemyInfo.enemyName, randomLevel);
+            }
         }
 
         void GenerateEnemyByName(string enemyName, int level)

@@ -5,12 +5,15 @@ using Characters;
 using Characters.Enemies;
 using Characters.Party;
 using UnityEngine;
+using UnityEngine.SceneManagement;
+using Random = UnityEngine.Random;
 
 namespace BattleSystem
 {
     public class BattleSystem : MonoBehaviour
     {
         const int TURN_DURATION = 1;
+        const string OVERWORLD_SCENE = "OverworldScene";
         
         enum BattleState
         {
@@ -25,8 +28,6 @@ namespace BattleSystem
         [SerializeField] BattleState battleState;
         
         [Header("Dependency Injections")]
-        [SerializeField] PartyManager partyManager;
-        [SerializeField] EnemyManager enemyManager;
         [SerializeField] GameObject battleUICanvas;
         
         [Header("Spawn Points")]
@@ -37,16 +38,25 @@ namespace BattleSystem
         [SerializeField] List<BattleEntity> allBattlers = new();
         [SerializeField] List<BattleEntity> enemyBattlers = new();
         [SerializeField] List<BattleEntity> playerBattlers = new();
-
+        
+        PartyManager _partyManager;
+        EnemyManager _enemyManager;
         BattleUI _battleUI;
         int _currentPlayer;
-    
+
+        void Awake()
+        {
+            _partyManager = FindFirstObjectByType<PartyManager>();
+            _enemyManager = FindFirstObjectByType<EnemyManager>();
+        }
+
         void Start()
         {
             AddPartyMembers();
             AddEnemies();
             _battleUI = new BattleUI(playerBattlers, enemyBattlers, SelectEnemy, battleUICanvas);
             _battleUI.ShowBattleMenu(_currentPlayer);
+            DetermineBattleOrder();
         }
 
         IEnumerator BattleRoutine()
@@ -110,12 +120,9 @@ namespace BattleSystem
 
         void SetRandomTarget(BattleEntity currentAttacker)
         {
-            var isTargetAnotherPartyMember = allBattlers[currentAttacker.actionTarget].isPlayer;
-            var isTargetAlreadyDefeated = currentAttacker.actionTarget >= allBattlers.Count;
-            
-            switch (currentAttacker.isPlayer)
+            switch (currentAttacker.actionTarget < allBattlers.Count && currentAttacker.isPlayer)
             {
-                case true when (isTargetAnotherPartyMember || isTargetAlreadyDefeated):
+                case true when (allBattlers[currentAttacker.actionTarget].isPlayer || currentAttacker.actionTarget >= allBattlers.Count):
                     currentAttacker.SetTarget(GetRandomBattler(false));
                     break;
                 case false:
@@ -142,6 +149,7 @@ namespace BattleSystem
                 {
                     battleState = BattleState.Won;
                     _battleUI.ShowWinText();
+                    SceneManager.LoadScene(OVERWORLD_SCENE);
                 }
             }
             
@@ -150,13 +158,13 @@ namespace BattleSystem
 
         void AddPartyMembers()
         {
-            var currentParty = partyManager.GetPartyMembers();
+            var currentParty = _partyManager.GetPartyMembers();
             AddEntities(true, currentParty);
         }
         
         void AddEnemies()
         {
-            var currentEnemies = enemyManager.GetEnemies();
+            var currentEnemies = _enemyManager.GetEnemies();
             AddEntities(false, currentEnemies);
         }
         
@@ -219,6 +227,7 @@ namespace BattleSystem
             currentTarget.battleVisuals.PlayHitAnimation();
             currentTarget.UpdateHealthBar();
             _battleUI.ShowDamageText(currentAttacker.name, currentTarget.name, damage);
+            SavePartyHealth();
         }
 
         int GetRandomBattler(bool isPlayer)
@@ -228,6 +237,19 @@ namespace BattleSystem
                 .ToList();
             
             return tempBattlerList[Random.Range(0, tempBattlerList.Count)];
+        }
+
+        void SavePartyHealth()
+        {
+            for (var i = 0; i < playerBattlers.Count; i++)
+            {
+                _partyManager.SaveHealth(i, playerBattlers[i].currentHealth);
+            }
+        }
+
+        void DetermineBattleOrder()
+        {
+            allBattlers = allBattlers.OrderByDescending(battler => battler.initiative).ToList();
         }
     }
 

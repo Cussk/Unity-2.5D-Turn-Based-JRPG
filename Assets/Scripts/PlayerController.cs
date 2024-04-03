@@ -1,3 +1,4 @@
+using Characters.Party;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -16,6 +17,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] int minStepsToEncounter;
     [SerializeField] int maxStepsToEncounter;
     
+    PartyManager _partyManager;
     PlayerControls _playerControls;
     Rigidbody _rigidbody;
     Vector3 _movement;
@@ -25,6 +27,7 @@ public class PlayerController : MonoBehaviour
     
     void Awake()
     {
+        _partyManager = FindFirstObjectByType<PartyManager>();
         _playerControls = new PlayerControls();
         SetRandomStepsToEncounter();
     }
@@ -37,6 +40,9 @@ public class PlayerController : MonoBehaviour
     void Start()
     {
         _rigidbody = GetComponent<Rigidbody>();
+
+        if (_partyManager.PlayerPosition != Vector3.zero)
+            transform.position = _partyManager.PlayerPosition;
     }
 
     void Update()
@@ -93,6 +99,7 @@ public class PlayerController : MonoBehaviour
 
             if (stepsInGrass >= _stepsToEncounter)
             {
+                _partyManager.SetPosition(transform.position);
                 SceneManager.LoadScene(BATTLE_SCENE);
                 
                 stepsInGrass = 0;

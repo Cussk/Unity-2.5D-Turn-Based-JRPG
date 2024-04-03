@@ -13,6 +13,7 @@ namespace BattleSystem
         const string LOSS_MSG = "All party defeated, GAME OVER";
 
         readonly Action<int> _selectEnemyCallback;
+        readonly Action _selectRunActionCallback;
         readonly List<BattleEntity> _enemyBattlers;
         readonly List<BattleEntity> _playerBattlers;
         readonly GameObject _battleMenu;
@@ -22,14 +23,17 @@ namespace BattleSystem
         readonly TextMeshProUGUI _bottomPopUpText;
         readonly Button[] _enemySelectionButtons;
         readonly Button _attackButton;
+        readonly Button _runButton;
         
-        public BattleUI(List<BattleEntity> playerBattlers, List<BattleEntity> enemyBattlers, Action<int> selectEnemyCallback, GameObject battleCanvas)
+        public BattleUI(List<BattleEntity> playerBattlers, List<BattleEntity> enemyBattlers, Action<int> selectEnemyCallback, Action selectRunActionCallback, GameObject battleCanvas)
         {
             _playerBattlers = playerBattlers;
             _enemyBattlers = enemyBattlers;
             _selectEnemyCallback = selectEnemyCallback;
+            _selectRunActionCallback = selectRunActionCallback;
             _battleMenu = battleCanvas.transform.GetChild(0).gameObject;
             _attackButton = _battleMenu.transform.GetChild(0).GetComponent<Button>();
+            _runButton = _battleMenu.transform.GetChild(1).GetComponent<Button>();
             _actionTitleText = _battleMenu.transform.GetChild(2).GetComponentInChildren<TextMeshProUGUI>();
             _enemySelectionMenu = battleCanvas.transform.GetChild(1).gameObject;
             _enemySelectionButtons = _enemySelectionMenu.GetComponentsInChildren<Button>();
@@ -42,6 +46,7 @@ namespace BattleSystem
             _actionTitleText.text = _playerBattlers[currentPlayer].name + ACTION_MSG;
             _battleMenu.SetActive(true);
             SetAttackButtonAction();
+            SetRunButtonAction();
         }
         
         public void ToggleEnemySelectionMenu()
@@ -80,6 +85,12 @@ namespace BattleSystem
             _attackButton.onClick.AddListener(ShowEnemySelectionMenu);
         }
 
+        void SetRunButtonAction()
+        {
+            _runButton.onClick.RemoveAllListeners();
+            _runButton.onClick.AddListener(RunAction);
+        }
+
         void ShowEnemySelectionMenu()
         {
             _battleMenu.SetActive(false);
@@ -113,6 +124,12 @@ namespace BattleSystem
                 button.onClick.RemoveAllListeners();
                 button.onClick.AddListener(() => _selectEnemyCallback(currentEnemyIndex));
             }
+        }
+        
+        void RunAction() 
+        {
+            _battleMenu.SetActive(false);
+            _selectRunActionCallback.Invoke();
         }
     }
 }

@@ -17,4 +17,4 @@ MonoBehaviour:
   enemyName: Slime
   baseHealth: 2
   baseStr: 1
-  baseInitiative: 1
+  baseInitiative: 10

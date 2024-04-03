@@ -54,7 +54,7 @@ namespace BattleSystem
         {
             AddPartyMembers();
             AddEnemies();
-            _battleUI = new BattleUI(playerBattlers, enemyBattlers, SelectEnemy, battleUICanvas);
+            _battleUI = new BattleUI(playerBattlers, enemyBattlers, SelectEnemy, SelectRunAction, battleUICanvas);
             _battleUI.ShowBattleMenu(_currentPlayer);
             DetermineBattleOrder();
         }
@@ -201,6 +201,17 @@ namespace BattleSystem
             currentPlayerEntity.SetTarget(allBattlers.IndexOf(enemyBattlers[currentEnemy]));
 
             currentPlayerEntity.battleAction = BattleEntity.Action.Attack;
+            _currentPlayer++;
+
+            HaveAllPlayersSelected();
+        }
+
+        void SelectRunAction()
+        {
+            battleState = BattleState.Selection;
+            var currentPlayerEntity = playerBattlers[_currentPlayer];
+
+            currentPlayerEntity.battleAction = BattleEntity.Action.Run;
             _currentPlayer++;
 
             HaveAllPlayersSelected();

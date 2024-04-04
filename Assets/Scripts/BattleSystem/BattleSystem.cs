@@ -13,6 +13,7 @@ namespace BattleSystem
     public class BattleSystem : MonoBehaviour
     {
         const int TURN_DURATION = 1;
+        const int RUN_THRESHOLD = 50;
         const string OVERWORLD_SCENE = "OverworldScene";
         
         enum BattleState
@@ -58,104 +59,7 @@ namespace BattleSystem
             _battleUI.ShowBattleMenu(_currentPlayer);
             DetermineBattleOrder();
         }
-
-        IEnumerator BattleRoutine()
-        {
-            _battleUI.ToggleEnemySelectionMenu();
-            battleState = BattleState.Battle;
-            _battleUI.ToggleBottomPoPUp();
-
-            for (var i = 0; i < allBattlers.Count; i++)
-            {
-                if (battleState != BattleState.Battle) continue;
-                
-                var battler = allBattlers[i];
-                switch (battler.battleAction)
-                {
-                    case BattleEntity.Action.Attack:
-                        yield return StartCoroutine(AttackRoutine(battler));
-                        break;
-                    case BattleEntity.Action.Run:
-                        break;
-                    default:
-                        Debug.Log("Not a valid Action");
-                        break;
-                }
-            }
-
-            CheckStillBattling();
-
-            yield return null;
-        }
         
-        
-        void CheckStillBattling()
-        {
-            if (battleState != BattleState.Battle) return;
-            
-            _battleUI.ToggleBottomPoPUp();
-            _currentPlayer = 0;
-            _battleUI.ShowBattleMenu(_currentPlayer);
-        }
-
-        IEnumerator AttackRoutine(BattleEntity currentAttacker)
-        {
-            SetRandomTarget(currentAttacker);
-
-            var currentTarget = allBattlers[currentAttacker.actionTarget];
-
-            AttackAction(currentAttacker, currentTarget);
-            yield return new WaitForSeconds(TURN_DURATION);
-
-            if (currentTarget.currentHealth <= 0)
-            {
-                _battleUI.ShowDefeatedText(currentAttacker.name, currentTarget.name);
-                yield return new WaitForSeconds(TURN_DURATION);
-        
-                HandleTargetDefeated(currentTarget);
-            }
-
-            yield return null;
-        }
-
-        void SetRandomTarget(BattleEntity currentAttacker)
-        {
-            switch (currentAttacker.actionTarget < allBattlers.Count && currentAttacker.isPlayer)
-            {
-                case true when (allBattlers[currentAttacker.actionTarget].isPlayer || currentAttacker.actionTarget >= allBattlers.Count):
-                    currentAttacker.SetTarget(GetRandomBattler(false));
-                    break;
-                case false:
-                    currentAttacker.SetTarget(GetRandomBattler(true));
-                    break;
-            }
-        }
-
-        void HandleTargetDefeated(BattleEntity currentTarget)
-        {
-            if (currentTarget.isPlayer)
-            {
-                playerBattlers.Remove(currentTarget);
-                if (playerBattlers.Count <= 0)
-                {
-                    battleState = BattleState.Lost;
-                    _battleUI.ShowLossText();
-                }
-            }
-            else
-            {
-                enemyBattlers.Remove(currentTarget);
-                if (enemyBattlers.Count <= 0)
-                {
-                    battleState = BattleState.Won;
-                    _battleUI.ShowWinText();
-                    SceneManager.LoadScene(OVERWORLD_SCENE);
-                }
-            }
-            
-            allBattlers.Remove(currentTarget);
-        }
-
         void AddPartyMembers()
         {
             var currentParty = _partyManager.GetPartyMembers();
@@ -194,6 +98,129 @@ namespace BattleSystem
             entityBattleVisuals.SetStartingValues(entity.GetCurrentHealth(), entity.GetMaxHealth(), entity.GetLevel());
             battleEntity.battleVisuals = entityBattleVisuals;
         }
+
+        IEnumerator BattleRoutine()
+        {
+            _battleUI.ToggleEnemySelectionMenu(false);
+            battleState = BattleState.Battle;
+            _battleUI.ToggleBottomPoPUp(true);
+
+            for (var i = 0; i < allBattlers.Count; i++)
+            {
+                if (battleState == BattleState.Battle && allBattlers[i].currentHealth > 0)
+                {
+
+                    var battler = allBattlers[i];
+                    switch (battler.battleAction)
+                    {
+                        case BattleEntity.Action.Attack:
+                            yield return StartCoroutine(AttackRoutine(battler));
+                            break;
+                        case BattleEntity.Action.Run:
+                            yield return StartCoroutine(RunRoutine());
+                            break;
+                        default:
+                            Debug.Log("Not a valid Action");
+                            break;
+                    }
+                }
+            }
+            
+            RemoveDeadBattlers();
+            CheckStillBattling();
+        }
+        
+        
+        void CheckStillBattling()
+        {
+            if (battleState != BattleState.Battle) return;
+            
+            _battleUI.ToggleBottomPoPUp(false);
+            _currentPlayer = 0;
+            _battleUI.ShowBattleMenu(_currentPlayer);
+        }
+
+        IEnumerator AttackRoutine(BattleEntity currentAttacker)
+        {
+            SetRandomTarget(currentAttacker);
+
+            var currentTarget = allBattlers[currentAttacker.actionTarget];
+
+            AttackAction(currentAttacker, currentTarget);
+            yield return new WaitForSeconds(TURN_DURATION);
+
+            if (currentTarget.currentHealth <= 0)
+            {
+                _battleUI.ShowDefeatedText(currentAttacker.name, currentTarget.name);
+                yield return new WaitForSeconds(TURN_DURATION);
+        
+                HandleTargetDefeated(currentTarget);
+            }
+        }
+
+        IEnumerator RunRoutine()
+        {
+            var runChance = Random.Range(0, 100);
+            if (runChance >= RUN_THRESHOLD)
+            {
+                battleState = BattleState.Run;
+                _battleUI.ShowGenericText(GlobalVariables.RUN_MSG);
+                allBattlers.Clear();
+                yield return new WaitForSeconds(TURN_DURATION);
+                SceneManager.LoadScene(OVERWORLD_SCENE);
+            }
+            else
+            {
+                _battleUI.ShowGenericText(GlobalVariables.RUN_FAIL_MSG);
+                yield return new WaitForSeconds(TURN_DURATION);
+            }
+        }
+
+        void SetRandomTarget(BattleEntity currentAttacker)
+        {
+            switch (currentAttacker.isPlayer)
+            {
+                case true when (allBattlers[currentAttacker.actionTarget].isPlayer || allBattlers[currentAttacker.actionTarget].currentHealth <= 0):
+                    currentAttacker.SetTarget(GetRandomBattler(false));
+                    break;
+                case false:
+                    currentAttacker.SetTarget(GetRandomBattler(true));
+                    break;
+            }
+        }
+
+        void HandleTargetDefeated(BattleEntity currentTarget)
+        {
+            if (currentTarget.isPlayer)
+            {
+                playerBattlers.Remove(currentTarget);
+                if (playerBattlers.Count <= 0)
+                {
+                    battleState = BattleState.Lost;
+                    _battleUI.ShowGenericText(GlobalVariables.LOSS_MSG);
+                }
+            }
+            else
+            {
+                enemyBattlers.Remove(currentTarget);
+                if (enemyBattlers.Count <= 0)
+                {
+                    battleState = BattleState.Won;
+                    _battleUI.ShowGenericText(GlobalVariables.WIN_MSG);
+                    SceneManager.LoadScene(OVERWORLD_SCENE);
+                }
+            }
+        }
+
+        void RemoveDeadBattlers()
+        {
+            for (var i = 0; i < allBattlers.Count; i++)
+            {
+                if (allBattlers[i].currentHealth <= 0)
+                    allBattlers.RemoveAt(i);
+            }
+        }
+        
         
         void SelectEnemy(int currentEnemy)
         {
@@ -225,7 +252,7 @@ namespace BattleSystem
             }
             else
             {
-                _battleUI.ToggleEnemySelectionMenu();
+                _battleUI.ToggleEnemySelectionMenu(false);
                 _battleUI.ShowBattleMenu(_currentPlayer);
             }
         }
@@ -244,7 +271,7 @@ namespace BattleSystem
         int GetRandomBattler(bool isPlayer)
         {
             var tempBattlerList = Enumerable.Range(0, allBattlers.Count)
-                .Where(index => allBattlers[index].isPlayer == isPlayer)
+                .Where(index => allBattlers[index].isPlayer == isPlayer && allBattlers[index].currentHealth > 0)
                 .ToList();
             
             return tempBattlerList[Random.Range(0, tempBattlerList.Count)];

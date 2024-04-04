@@ -5,9 +5,10 @@ using UnityEngine.SceneManagement;
 
 public class PlayerController : MonoBehaviour
 {
-    const string IS_WALKING_PARAM = "IsWalking";
     const string BATTLE_SCENE = "BattleScene";
     const float TIME_PER_STEP = 0.5F;
+    
+    static readonly int IsWalking = Animator.StringToHash("IsWalking");
     
     [SerializeField] Animator animator;
     [SerializeField] SpriteRenderer playerSprite;
@@ -24,7 +25,7 @@ public class PlayerController : MonoBehaviour
     bool _movingInGrass;
     float _stepTimer;
     int _stepsToEncounter;
-    
+
     void Awake()
     {
         _partyManager = FindFirstObjectByType<PartyManager>();
@@ -66,7 +67,7 @@ public class PlayerController : MonoBehaviour
         _movement = new Vector3(x, 0, z).normalized;
 
         var isMoving = _movement != Vector3.zero;
-        animator.SetBool(IS_WALKING_PARAM, isMoving);
+        animator.SetBool(IsWalking, isMoving);
 
         SpriteFlipX(x);
     }

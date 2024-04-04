@@ -7,9 +7,10 @@ namespace BattleSystem
     public class BattleVisuals : MonoBehaviour
     {
         const string LVL_STRING = "Lvl: ";
-        const string IS_ATTACK_PARAM = "IsAttack";
-        const string IS_HIT_PARAM = "IsHit";
-        const string IS_DEAD_PARAM = "IsDead";
+        
+        static readonly int IsAttack = Animator.StringToHash("IsAttack");
+        static readonly int IsHit = Animator.StringToHash("IsHit");
+        static readonly int IsDead = Animator.StringToHash("IsDead");
         
         [SerializeField] Slider healthBar;
         [SerializeField] TextMeshProUGUI levelText;
@@ -47,17 +48,17 @@ namespace BattleSystem
 
         public void PlayAttackAnimation()
         {
-            _animator.SetTrigger(IS_ATTACK_PARAM);
+            _animator.SetTrigger(IsAttack);
         }
 
         public void PlayHitAnimation()
         {
-            _animator.SetTrigger(IS_HIT_PARAM);
+            _animator.SetTrigger(IsHit);
         }
 
         void PlayDeathAnimation()
         {
-            _animator.SetTrigger(IS_DEAD_PARAM);
+            _animator.SetTrigger(IsDead);
         }
         
         void UpdateHealthBar()

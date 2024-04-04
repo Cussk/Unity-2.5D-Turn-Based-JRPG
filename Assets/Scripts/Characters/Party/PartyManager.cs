@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace Characters.Party
@@ -27,6 +28,7 @@ namespace Characters.Party
             {
                 _instance = gameObject;
                 AddMemberToPartyByName(defaultPartyMember.memberName);
+                AddMemberToPartyByName(defaultPartyMember.memberName);
             }
 
             DontDestroyOnLoad(gameObject);
@@ -45,7 +47,8 @@ namespace Characters.Party
 
         public List<PartyMember> GetPartyMembers()
         {
-            return currentPartyMembers;
+            var alivePartyMembers = currentPartyMembers.Where(member => member.currentHealth > 0).ToList();
+            return alivePartyMembers;
         }
 
         public void SaveHealth(int partyMember, int health)

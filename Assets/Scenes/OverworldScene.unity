@@ -1062,7 +1062,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c3e1bc81f4889534283d0d879bb12f0c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  enemyManager: {fileID: 95306335}
   enemiesInScene:
   - enemyInfo: {fileID: 11400000, guid: aa779edfc2123314e8817479c1f1e0a8, type: 2}
     minLevel: 1
@@ -1315,7 +1314,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3a84cece68145634e998cf1176370a08, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  partyManager: {fileID: 314661185}
   animator: {fileID: 324009939}
   playerSprite: {fileID: 324009938}
   grassLayer:

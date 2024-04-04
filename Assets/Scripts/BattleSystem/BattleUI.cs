@@ -9,8 +9,6 @@ namespace BattleSystem
     public class BattleUI
     {
         const string ACTION_MSG = "'s Action:";
-        const string WIN_MSG = "Party won the battle";
-        const string LOSS_MSG = "All party defeated, GAME OVER";
 
         readonly Action<int> _selectEnemyCallback;
         readonly Action _selectRunActionCallback;
@@ -49,14 +47,14 @@ namespace BattleSystem
             SetRunButtonAction();
         }
         
-        public void ToggleEnemySelectionMenu()
+        public void ToggleEnemySelectionMenu(bool enableManu)
         {
-            _enemySelectionMenu.SetActive(!_enemySelectionMenu.activeSelf);
+            _enemySelectionMenu.SetActive(enableManu);
         }
 
-        public void ToggleBottomPoPUp()
+        public void ToggleBottomPoPUp(bool enablePopUp)
         {
-            _bottomPopUp.SetActive(!_bottomPopUp.activeSelf);
+            _bottomPopUp.SetActive(enablePopUp);
         }
 
         public void ShowDamageText(string attackerName, string targetName, int damage)
@@ -69,14 +67,9 @@ namespace BattleSystem
             _bottomPopUpText.text = $"{attackerName} defeated {targetName}!";
         }
 
-        public void ShowWinText()
+        public void ShowGenericText(string text)
         {
-            _bottomPopUpText.text = WIN_MSG;
-        }
-
-        public void ShowLossText()
-        {
-            _bottomPopUpText.text = LOSS_MSG;
+            _bottomPopUpText.text = text;
         }
 
         void SetAttackButtonAction()
@@ -96,7 +89,7 @@ namespace BattleSystem
             _battleMenu.SetActive(false);
             SetEnemySelectionButtons();
             SetSelectEnemyButtonsAction();
-            ToggleEnemySelectionMenu();
+            ToggleEnemySelectionMenu(true);
         }
 
         void SetEnemySelectionButtons()

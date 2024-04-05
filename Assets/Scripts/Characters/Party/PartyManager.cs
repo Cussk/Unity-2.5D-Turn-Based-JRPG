@@ -34,7 +34,7 @@ namespace Characters.Party
             DontDestroyOnLoad(gameObject);
         }
 
-        void AddMemberToPartyByName(string memberName)
+        public void AddMemberToPartyByName(string memberName)
         {
             for (var i = 0; i < allPartyMembers.Length; i++)
             {
@@ -45,7 +45,7 @@ namespace Characters.Party
             }
         }
 
-        public List<PartyMember> GetPartyMembers()
+        public List<PartyMember> GetAlivePartyMembers()
         {
             var alivePartyMembers = currentPartyMembers.Where(member => member.currentHealth > 0).ToList();
             return alivePartyMembers;

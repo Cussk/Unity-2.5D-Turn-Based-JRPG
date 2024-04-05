@@ -62,7 +62,7 @@ namespace BattleSystem
         
         void AddPartyMembers()
         {
-            var currentParty = _partyManager.GetPartyMembers();
+            var currentParty = _partyManager.GetAlivePartyMembers();
             AddEntities(true, currentParty);
         }
         

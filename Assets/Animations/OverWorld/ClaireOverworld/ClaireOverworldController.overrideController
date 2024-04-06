@@ -1,0 +1,15 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!221 &22100000
+AnimatorOverrideController:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: ClaireOverworldController
+  m_Controller: {fileID: 9100000, guid: 66a9bff0f6852234a907b58566226c8b, type: 2}
+  m_Clips:
+  - m_OriginalClip: {fileID: 7400000, guid: 883f6c26d74fd9541b4fb277a388ef6e, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: 192f559734f24414a943a6cd16b852f5, type: 2}
+  - m_OriginalClip: {fileID: 7400000, guid: 10598f2d57ec1874e866677dfe87f7c1, type: 2}
+    m_OverrideClip: {fileID: 7400000, guid: e6c92c29e26455345b7ecbe34904c0f8, type: 2}

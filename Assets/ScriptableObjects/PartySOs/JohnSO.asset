@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   memberBattleVisualPrefab: {fileID: 6301666088670898318, guid: 16317f420906f0c4c96bfbf2df884564,
     type: 3}
-  memberOverworldVisualPrefab: {fileID: 0}
+  memberOverworldVisualPrefab: {fileID: 529024618849887812, guid: 6de40d9aa479d1f4e986fc85ebdc15b9,
+    type: 3}
   memberName: John
   startingLevel: 1
   baseHealth: 10

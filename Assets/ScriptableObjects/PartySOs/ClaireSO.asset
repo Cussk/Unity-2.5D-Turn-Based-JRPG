@@ -12,8 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aa3614b6a521f024da39df7d721bb9d9, type: 3}
   m_Name: ClaireSO
   m_EditorClassIdentifier: 
-  memberBattleVisualPrefab: {fileID: 0}
-  memberOverworldVisualPrefab: {fileID: 0}
+  memberBattleVisualPrefab: {fileID: 6301666088670898318, guid: 613f6cfb32e1ee248baaefe85e344eeb,
+    type: 3}
+  memberOverworldVisualPrefab: {fileID: 5040312731371696265, guid: 549cfdb09965fe94e8706b4ba0571eca,
+    type: 3}
   memberName: Claire
   startingLevel: 1
   baseHealth: 7

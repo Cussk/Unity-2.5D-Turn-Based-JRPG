@@ -28,7 +28,6 @@ namespace Characters.Party
             {
                 _instance = gameObject;
                 AddMemberToPartyByName(defaultPartyMember.memberName);
-                AddMemberToPartyByName(defaultPartyMember.memberName);
             }
 
             DontDestroyOnLoad(gameObject);
@@ -49,6 +48,11 @@ namespace Characters.Party
         {
             var alivePartyMembers = currentPartyMembers.Where(member => member.currentHealth > 0).ToList();
             return alivePartyMembers;
+        }
+
+        public List<PartyMember> GetCurrentPartyMembers()
+        {
+            return currentPartyMembers;
         }
 
         public void SaveHealth(int partyMember, int health)

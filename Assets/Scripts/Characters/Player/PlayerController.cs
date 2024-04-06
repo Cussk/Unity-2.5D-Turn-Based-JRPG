@@ -1,5 +1,5 @@
-using System;
 using Characters.Party;
+using UI;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Random = UnityEngine.Random;
@@ -16,6 +16,7 @@ namespace Characters.Player
         [SerializeField] Animator animator;
         [SerializeField] SpriteRenderer playerSprite;
         [SerializeField] LayerMask grassLayer;
+        [SerializeField] GameObject popUpCanvasGameObject;
         [SerializeField] int stepsInGrass;
         [SerializeField] int speed;
         [SerializeField] int minStepsToEncounter;
@@ -24,6 +25,7 @@ namespace Characters.Player
         PartyManager _partyManager;
         PlayerControls _playerControls;
         CharacterManager _characterManager;
+        OverWorldPopUpController _overWorldPopUpController;
         Rigidbody _rigidbody;
         Vector3 _movement;
         bool _movingInGrass;
@@ -34,9 +36,10 @@ namespace Characters.Player
         {
             _partyManager = FindFirstObjectByType<PartyManager>();
             _playerControls = new PlayerControls();
+            _overWorldPopUpController = new OverWorldPopUpController(popUpCanvasGameObject);
             _rigidbody = GetComponent<Rigidbody>();
             _characterManager = GetComponent<CharacterManager>();
-            _characterManager.Init(_playerControls, _partyManager);
+            _characterManager.Init(_playerControls, _partyManager, _overWorldPopUpController);
             SetRandomStepsToEncounter();
         }
 

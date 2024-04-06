@@ -1,4 +1,5 @@
 using Characters.Party;
+using UI;
 using UnityEngine;
 
 namespace Characters.Player
@@ -6,17 +7,20 @@ namespace Characters.Player
     public class CharacterManager : MonoBehaviour
     {
         const string NPC_JOINABLE_TAG = "NPCJoinable";
+        
         bool _inFrontOfPartyMember;
-        GameObject _joinableMember;
-        JoinableCharacterScript _joinableCharacterScript;
         PlayerControls _playerControls;
         PartyManager _partyManager;
-
-        public void Init(PlayerControls playerControls, PartyManager partyManager)
+        OverWorldPopUpController _overWorldPopUpController;
+        GameObject _joinableMember;
+        JoinableCharacterScript _joinableCharacterScript;
+        
+        public void Init(PlayerControls playerControls, PartyManager partyManager, OverWorldPopUpController overWorldPopUpController)
         {
             _playerControls = playerControls;
             _partyManager = partyManager;
-
+            _overWorldPopUpController = overWorldPopUpController;
+            
             _playerControls.Player.Interact.performed += eButton => Interact();
         }
 
@@ -51,7 +55,11 @@ namespace Characters.Player
 
         void PartyMemberJoined(PartyMemberInfo partyMember)
         {
-            _partyManager.AddMemberToPartyByName(partyMember.memberName);
+            var memberName = partyMember.memberName;
+            _partyManager.AddMemberToPartyByName(memberName);
+            StartCoroutine(_overWorldPopUpController.DisplayPopUpBanner());
+            _overWorldPopUpController.SetPartyJoinedText(memberName);
+            _joinableCharacterScript.CheckIfJoined();
         }
     }
 }

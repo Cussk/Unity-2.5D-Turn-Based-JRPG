@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace Characters.Party
@@ -13,10 +11,6 @@ namespace Characters.Party
         void Awake()
         {
             _partyManager = FindFirstObjectByType<PartyManager>();
-        }
-
-        void Start()
-        {
             CheckIfJoined();
         }
 

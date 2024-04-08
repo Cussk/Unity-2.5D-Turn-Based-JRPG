@@ -11,10 +11,8 @@ namespace Characters.Player
         const string BATTLE_SCENE = "BattleScene";
         const float TIME_PER_STEP = 0.5F;
     
-        static readonly int IsWalking = Animator.StringToHash("IsWalking");
+        static readonly int IsWalking = Animator.StringToHash(GlobalVariables.IS_WALK_PARAM);
         
-        [SerializeField] Animator animator;
-        [SerializeField] SpriteRenderer playerSprite;
         [SerializeField] LayerMask grassLayer;
         [SerializeField] GameObject popUpCanvasGameObject;
         [SerializeField] int stepsInGrass;
@@ -27,6 +25,8 @@ namespace Characters.Player
         CharacterManager _characterManager;
         OverWorldPopUpController _overWorldPopUpController;
         Rigidbody _rigidbody;
+        Animator _playerAnimator;
+        SpriteRenderer _playerSprite;
         Vector3 _movement;
         bool _movingInGrass;
         float _stepTimer;
@@ -72,6 +72,12 @@ namespace Characters.Player
             AddStepsUntilEncounter(position);
         }
 
+        public void SetOverWorldVisuals(Animator animator, SpriteRenderer spriteRenderer)
+        {
+            _playerAnimator = animator;
+            _playerSprite = spriteRenderer;
+        }
+
         void PlayerMove()
         {
             var x = _playerControls.Player.Move.ReadValue<Vector2>().x;
@@ -80,7 +86,7 @@ namespace Characters.Player
             _movement = new Vector3(x, 0, z).normalized;
 
             var isMoving = _movement != Vector3.zero;
-            animator.SetBool(IsWalking, isMoving);
+            _playerAnimator.SetBool(IsWalking, isMoving);
 
             SpriteFlipX(x);
         }
@@ -90,10 +96,10 @@ namespace Characters.Player
             switch (x)
             {
                 case < 0:
-                    playerSprite.flipX = true;
+                    _playerSprite.flipX = true;
                     break;
                 case > 0:
-                    playerSprite.flipX = false;
+                    _playerSprite.flipX = false;
                     break;
             }
         }
